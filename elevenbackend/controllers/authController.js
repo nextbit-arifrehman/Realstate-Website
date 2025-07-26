@@ -61,21 +61,25 @@ exports.registerUser = async (req, res) => {
 // Login with Firebase ID Token
 exports.loginUser = async (req, res) => {
   try {
+    console.log("🔐 Backend: Received login request with Firebase ID token");
     const { idToken } = req.body;
 
     // Verify Firebase ID token
+    console.log("🔍 Backend: Verifying Firebase ID token with Admin SDK...");
     const decodedToken = await auth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
     const email = decodedToken.email;
     const displayName = decodedToken.name || email.split('@')[0];
     const photoURL = decodedToken.picture;
+    console.log("✅ Backend: Firebase token verified successfully for:", email);
 
     // Get user from DB
+    console.log("🔍 Backend: Checking if user exists in MongoDB...");
     let user = await User.findByUid(req.db, uid);
     
     // If user doesn't exist, create them automatically
     if (!user) {
-      console.log(`Creating new user for ${email}`);
+      console.log(`👤 Backend: Creating new user account for ${email}`);
       user = await User.create(req.db, {
         uid: uid,
         backendId: `user_${uid}`, // Unique backend identifier
@@ -88,12 +92,17 @@ exports.loginUser = async (req, res) => {
         createdAt: new Date(),
         lastLoginAt: new Date()
       });
-      console.log(`✅ New user created: ${email}`);
+      console.log(`✅ Backend: New user created successfully: ${email}`);
+      console.log(`🎯 Backend: User assigned default role: user`);
     } else {
+      console.log(`👤 Backend: Existing user found: ${email}`);
+      console.log(`🎯 Backend: User role: ${user.role}`);
       // Update last login time for existing users
       await User.updateLastLogin(req.db, uid);
+      console.log(`⏰ Backend: Last login time updated`);
     }
 
+    console.log("💾 Backend: Sending user data to frontend...");
     res.status(200).json({
       message: 'Login successful',
       user: {
@@ -107,8 +116,9 @@ exports.loginUser = async (req, res) => {
         isFraud: user.isFraud
       },
     });
+    console.log("✅ Backend: Login flow completed successfully");
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Backend: Login error:', error.code, error.message);
     res.status(401).json({ 
       error: 'Invalid ID token or login failure',
       code: error.code 

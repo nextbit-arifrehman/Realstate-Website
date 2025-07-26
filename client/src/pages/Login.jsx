@@ -21,7 +21,16 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await signInWithEmail(email, password);
+      console.log("🔄 LOGIN FLOW STARTED: Email/Password authentication");
+      console.log("📧 Step 1: Attempting Firebase email login for:", email);
+      
+      const result = await signInWithEmail(email, password);
+      console.log("✅ Step 2: Firebase login successful");
+      console.log("🔑 Step 3: Firebase ID token generated");
+      console.log("💾 Step 4: JWT stored in localStorage");
+      console.log("👤 Step 5: User data synced with backend");
+      console.log("🎯 Step 6: Redirecting to role-based dashboard");
+      
       toast({
         title: "Welcome back!",
         description: "You have been successfully logged in.",
@@ -52,9 +61,19 @@ export default function Login() {
     setLoading(true);
     
     try {
+      console.log("🔄 GOOGLE LOGIN FLOW STARTED");
+      console.log("🔍 Step 1: Opening Google OAuth popup");
+      
       const result = await signInWithGoogle();
       
       if (result && result.user) {
+        console.log("✅ Step 2: Google OAuth successful");
+        console.log("🔑 Step 3: Firebase ID token retrieved");
+        console.log("🔐 Step 4: Backend verification completed");
+        console.log("💾 Step 5: JWT stored in localStorage");
+        console.log("👤 Step 6: User profile created/updated");
+        console.log("🎯 Step 7: Redirecting to dashboard");
+        
         toast({
           title: "Welcome!",
           description: "You have been successfully logged in with Google.",

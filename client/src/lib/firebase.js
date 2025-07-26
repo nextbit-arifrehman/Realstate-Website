@@ -50,7 +50,9 @@ googleProvider.addScope('profile');
 // Helper function to sync user with backend
 const syncUserWithBackend = async (user) => {
   try {
+    console.log("🔄 Backend: Starting user synchronization...");
     const idToken = await user.getIdToken();
+    console.log("🔑 Backend: Firebase ID token retrieved");
     
     // Get backend URL based on environment - use proxy in Replit
     const getBackendURL = () => {
@@ -62,6 +64,7 @@ const syncUserWithBackend = async (user) => {
       return "http://localhost:5000/api/auth/login";
     };
     
+    console.log("📡 Backend: Sending login request to backend...");
     const response = await fetch(getBackendURL(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -72,9 +75,11 @@ const syncUserWithBackend = async (user) => {
       const data = await response.json();
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("token", idToken);
-      console.log("✅ User synced with backend successfully");
+      console.log("✅ Backend: User synced with MongoDB successfully");
+      console.log("👤 Backend: User role assigned:", data.user.role);
+      console.log("💾 Backend: JWT stored in localStorage");
     } else {
-      console.log("Backend sync failed, using Firebase user data");
+      console.log("⚠️ Backend: Sync failed, using Firebase user data");
       // Store Firebase user data as fallback
       const firebaseUser = {
         uid: user.uid,
@@ -86,10 +91,11 @@ const syncUserWithBackend = async (user) => {
       };
       localStorage.setItem("user", JSON.stringify(firebaseUser));
       localStorage.setItem("token", idToken);
+      console.log("💾 Backend: Fallback user data stored");
     }
   } catch (error) {
-    console.error("Backend sync error:", error);
-    console.warn("Backend sync failed, using Firebase user data:", error.message);
+    console.error("❌ Backend: Sync error:", error);
+    console.warn("⚠️ Backend: Using Firebase user data as fallback");
     
     // Store Firebase user data as fallback
     const firebaseUser = {
@@ -102,62 +108,69 @@ const syncUserWithBackend = async (user) => {
     };
     localStorage.setItem("user", JSON.stringify(firebaseUser));
     localStorage.setItem("token", await user.getIdToken());
+    console.log("💾 Backend: Fallback data stored in localStorage");
   }
 };
 
 // Google Sign-in
 export const signInWithGoogle = async () => {
-  console.log("Attempting Google sign-in...");
+  console.log("🔍 Google: Opening OAuth popup...");
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    console.log("✅ Google sign-in successful:", result.user.email);
+    console.log("✅ Google: OAuth authentication successful");
+    console.log("👤 Google: Profile data retrieved for:", result.user.email);
+    console.log("🔑 Google: Firebase ID token generated");
     
     // Sync user with backend
     await syncUserWithBackend(result.user);
     
     return result;
   } catch (error) {
-    console.error("Google sign-in error:", error);
+    console.error("❌ Google: Sign-in failed:", error.code, error.message);
     throw error;
   }
 };
 
 // Email/Password Sign-in
 export const signInWithEmail = async (email, password) => {
-  console.log("Attempting email sign-in for:", email);
+  console.log("📧 Firebase: Attempting email authentication for:", email);
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
-    console.log("✅ Email sign-in successful:", result.user.email);
+    console.log("✅ Firebase: Email authentication successful");
+    console.log("🔑 Firebase: ID token generated for:", result.user.email);
     
     // Sync user with backend
     await syncUserWithBackend(result.user);
     
     return result;
   } catch (error) {
-    console.error("Email sign-in error:", error);
+    console.error("❌ Firebase: Email sign-in failed:", error.code, error.message);
     throw error;
   }
 };
 
 // Email/Password Sign-up
 export const signUpWithEmail = async (email, password, displayName) => {
-  console.log("Attempting email sign-up for:", email);
+  console.log("📧 Firebase: Creating new user account for:", email);
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
+    console.log("✅ Firebase: User account created successfully");
     
     // Update profile with display name
     if (displayName) {
+      console.log("👤 Firebase: Updating user profile with display name");
       await updateProfile(result.user, { displayName });
+      console.log("✅ Firebase: Profile updated successfully");
     }
     
-    console.log("✅ Email sign-up successful:", result.user.email);
+    console.log("🔑 Firebase: ID token generated for new user");
     
     // Sync user with backend
     await syncUserWithBackend(result.user);
     
     return result;
   } catch (error) {
-    console.error("Email sign-up error:", error);
+    console.error("❌ Firebase: Email registration failed:", error.code, error.message);
     throw error;
   }
 };

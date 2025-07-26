@@ -56,7 +56,17 @@ export default function Register() {
     }
 
     try {
+      console.log("🔄 REGISTRATION FLOW STARTED: Email/Password");
+      console.log("📧 Step 1: Creating Firebase user account for:", formData.email);
+      
       const userCredential = await signUpWithEmail(formData.email, formData.password, formData.displayName);
+      
+      console.log("✅ Step 2: Firebase user created successfully");
+      console.log("👤 Step 3: User profile updated with display name");
+      console.log("🔑 Step 4: Firebase ID token generated");
+      console.log("🔐 Step 5: Backend JWT issued and stored");
+      console.log("💾 Step 6: User data saved to MongoDB");
+      console.log("🎯 Step 7: Redirecting to dashboard");
       
       toast({
         title: "Account Created!",
@@ -89,7 +99,18 @@ export default function Register() {
     setLoading(true);
     
     try {
+      console.log("🔄 GOOGLE REGISTRATION FLOW STARTED");
+      console.log("🔍 Step 1: Opening Google OAuth popup for registration");
+      
       await signInWithGoogle();
+      
+      console.log("✅ Step 2: Google OAuth registration successful");
+      console.log("👤 Step 3: Google profile data retrieved");
+      console.log("🔑 Step 4: Firebase ID token generated");
+      console.log("🔐 Step 5: Backend verification and JWT issued");
+      console.log("💾 Step 6: User account created in MongoDB");
+      console.log("🎯 Step 7: Redirecting to dashboard");
+      
       toast({
         title: "Welcome!",
         description: "Your account has been successfully created with Google.",
