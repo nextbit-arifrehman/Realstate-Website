@@ -94,16 +94,21 @@ exports.getAllUsers = async (req, res) => {
 exports.makeAdmin = async (req, res) => {
   try {
     const { uid } = req.params;
+    console.log(`🔄 Admin: Updating user role to 'admin' for uid: ${uid}`);
+    
     const user = await User.findByUid(req.db, uid);
     if (!user || !user.uid) {
+      console.log(`❌ Admin: User not found with uid: ${uid}`);
       return res.status(404).json({ error: 'User not found' });
     }
 
-    await User.updateUser(req.db, uid, { role: 'admin' });
+    console.log(`👤 Admin: Found user ${user.email}, current role: ${user.role}`);
+    await User.updateUserRole(req.db, uid, 'admin');
+    console.log(`✅ Admin: User ${user.email} role updated to 'admin'`);
 
     res.json({ message: 'User promoted to admin', user: { role: 'admin' } });
   } catch (error) {
-    console.error('Make admin error:', error);
+    console.error('❌ Admin: Make admin error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -112,16 +117,21 @@ exports.makeAdmin = async (req, res) => {
 exports.makeAgent = async (req, res) => {
   try {
     const { uid } = req.params;
+    console.log(`🔄 Admin: Updating user role to 'agent' for uid: ${uid}`);
+    
     const user = await User.findByUid(req.db, uid);
     if (!user || !user.uid) {
+      console.log(`❌ Admin: User not found with uid: ${uid}`);
       return res.status(404).json({ error: 'User not found' });
     }
 
-    await User.updateUser(req.db, uid, { role: 'agent' });
+    console.log(`👤 Admin: Found user ${user.email}, current role: ${user.role}`);
+    await User.updateUserRole(req.db, uid, 'agent');
+    console.log(`✅ Admin: User ${user.email} role updated to 'agent'`);
 
     res.json({ message: 'User promoted to agent', user: { role: 'agent' } });
   } catch (error) {
-    console.error('Make agent error:', error);
+    console.error('❌ Admin: Make agent error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

@@ -13,8 +13,21 @@ exports.registerUser = async (req, res) => {
     }
 
     const { email, password, displayName, photoURL, role } = req.body;
+    
+    console.log(`📧 Backend: Registration attempt for email: ${email}`);
+
+    // Check if user already exists in MongoDB
+    const existingUser = await User.findByEmail(req.db, email);
+    if (existingUser) {
+      console.log(`❌ Backend: User already exists with email: ${email}`);
+      return res.status(409).json({ 
+        error: 'User already exists with this email address',
+        code: 'auth/email-already-exists'
+      });
+    }
 
     // Create Firebase Auth user
+    console.log(`🔥 Backend: Creating Firebase user for: ${email}`);
     const userRecord = await auth.createUser({
       email,
       password,
@@ -23,6 +36,7 @@ exports.registerUser = async (req, res) => {
     });
 
     // Save user info in MongoDB with backend unique ID
+    console.log(`💾 Backend: Saving user to MongoDB...`);
     const user = await User.create(req.db, {
       uid: userRecord.uid,
       backendId: `user_${userRecord.uid}`, // Unique backend identifier
@@ -36,6 +50,7 @@ exports.registerUser = async (req, res) => {
       lastLoginAt: new Date()
     });
 
+    console.log(`✅ Backend: User registration completed for: ${email}`);
     res.status(201).json({
       message: 'User registered successfully. Please log in.',
       user: {
@@ -50,7 +65,16 @@ exports.registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Register error:', error);
+    console.error('❌ Backend: Register error:', error.code, error.message);
+    
+    // Handle Firebase specific errors
+    if (error.code === 'auth/email-already-exists') {
+      return res.status(409).json({ 
+        error: 'User already exists with this email address',
+        code: error.code 
+      });
+    }
+    
     res.status(400).json({ 
       error: error.message,
       code: error.code 
@@ -73,34 +97,23 @@ exports.loginUser = async (req, res) => {
     const photoURL = decodedToken.picture;
     console.log("✅ Backend: Firebase token verified successfully for:", email);
 
-    // Get user from DB
+    // Check for existing user and create/update accordingly
     console.log("🔍 Backend: Checking if user exists in MongoDB...");
-    let user = await User.findByUid(req.db, uid);
+    let user = await User.createOrUpdate(req.db, {
+      uid: uid,
+      backendId: `user_${uid}`, // Unique backend identifier
+      email: email,
+      displayName: displayName,
+      photoURL: photoURL,
+      role: 'user', // default role for new users
+      verified: false,
+      isFraud: false,
+      createdAt: new Date(),
+      lastLoginAt: new Date()
+    });
     
-    // If user doesn't exist, create them automatically
-    if (!user) {
-      console.log(`👤 Backend: Creating new user account for ${email}`);
-      user = await User.create(req.db, {
-        uid: uid,
-        backendId: `user_${uid}`, // Unique backend identifier
-        email: email,
-        displayName: displayName,
-        photoURL: photoURL,
-        role: 'user', // default role
-        verified: false,
-        isFraud: false,
-        createdAt: new Date(),
-        lastLoginAt: new Date()
-      });
-      console.log(`✅ Backend: New user created successfully: ${email}`);
-      console.log(`🎯 Backend: User assigned default role: user`);
-    } else {
-      console.log(`👤 Backend: Existing user found: ${email}`);
-      console.log(`🎯 Backend: User role: ${user.role}`);
-      // Update last login time for existing users
-      await User.updateLastLogin(req.db, uid);
-      console.log(`⏰ Backend: Last login time updated`);
-    }
+    console.log(`👤 Backend: User processed: ${email}`);
+    console.log(`🎯 Backend: Current user role: ${user.role}`);
 
     console.log("💾 Backend: Sending user data to frontend...");
     res.status(200).json({
