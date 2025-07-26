@@ -7,10 +7,20 @@ const User = require('../models/User');
 // User makes an offer for a property (User only)
 exports.makeOffer = async (req, res) => {
   try {
+    console.log('📝 Offer creation request body:', req.body);
+    
     const {
       propertyId,
-      offerAmount,
+      propertyTitle,
+      propertyLocation,
+      propertyImage,
+      agentName,
+      agentEmail,
+      buyerEmail,
+      buyerName,
+      offeredAmount, // Frontend sends offeredAmount
       buyingDate,
+      status
     } = req.body;
 
     const buyerUid = req.user.uid;
@@ -21,33 +31,28 @@ exports.makeOffer = async (req, res) => {
       return res.status(403).json({ error: 'Only users can make offers' });
     }
 
-    const property = await Property.getPropertyById(req.db, propertyId);
-    if (!property) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-
-    // Check offerAmount within price range
-    if (offerAmount < property.priceRange.min || offerAmount > property.priceRange.max) {
-      return res.status(400).json({ error: 'Offer amount must be within the price range' });
-    }
+    console.log(`💰 Creating offer for ${offeredAmount} by ${buyerName} for property ${propertyTitle}`);
 
     const offer = await Offer.create(req.db, {
       propertyId,
-      propertyTitle: property.title,
-      propertyLocation: property.location,
-      agentUid: property.agentUid,
-      agentName: property.agentName,
+      propertyTitle,
+      propertyLocation,
+      propertyImage,
+      agentName,
+      agentEmail,
       buyerUid,
-      buyerEmail: buyer.email,
-      buyerName: buyer.displayName,
-      offerAmount,
+      buyerEmail,
+      buyerName,
+      offeredAmount, // Store as offeredAmount to match frontend expectation
       buyingDate,
-      status: 'pending',
+      status: status || 'pending',
+      createdAt: new Date()
     });
 
+    console.log('✅ Offer created successfully:', offer);
     res.status(201).json({ message: 'Offer made successfully', offer });
   } catch (error) {
-    console.error('Make offer error:', error);
+    console.error('❌ Make offer error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
