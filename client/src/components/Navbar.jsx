@@ -50,19 +50,19 @@ export default function Navbar() {
         </Button>
       </Link>
       
+      <Link to="/all-properties">
+        <Button 
+          variant="ghost" 
+          className={`${mobile ? 'w-full justify-start' : ''} text-neutral-700 hover:text-primary`}
+          onClick={onClose}
+        >
+          <Building className="w-4 h-4 mr-2" />
+          All Properties
+        </Button>
+      </Link>
+      
       {user && (
         <>
-          <Link to="/properties">
-            <Button 
-              variant="ghost" 
-              className={`${mobile ? 'w-full justify-start' : ''} text-neutral-700 hover:text-primary`}
-              onClick={onClose}
-            >
-              <Building className="w-4 h-4 mr-2" />
-              All Properties
-            </Button>
-          </Link>
-          
           <Link to="/dashboard">
             <Button 
               variant="ghost" 

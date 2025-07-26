@@ -51,7 +51,6 @@ function AppRouter() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
-          <Route path="/properties" element={<PrivateRoute><AllProperties /></PrivateRoute>} />
           <Route path="/all-properties" element={<PrivateRoute><AllProperties /></PrivateRoute>} />
           <Route path="/property/:id" element={<PrivateRoute><PropertyDetails /></PrivateRoute>} />
           <Route path="/payment/:offerId" element={<PrivateRoute><Payment /></PrivateRoute>} />
