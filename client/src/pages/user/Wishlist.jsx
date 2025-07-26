@@ -15,9 +15,11 @@ const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState(null);
+  const [existingOffers, setExistingOffers] = useState({});
 
   useEffect(() => {
     fetchWishlist();
+    fetchExistingOffers();
   }, []);
 
   const fetchWishlist = async () => {
@@ -71,8 +73,35 @@ const Wishlist = () => {
     }
   };
 
+  const fetchExistingOffers = async () => {
+    try {
+      const response = await api.get('/api/offers/my-offers');
+      const offersMap = {};
+      response.data.forEach(offer => {
+        if (offer.status === 'pending' || offer.status === 'accepted') {
+          offersMap[offer.propertyId] = offer;
+        }
+      });
+      setExistingOffers(offersMap);
+    } catch (error) {
+      console.error('Error fetching existing offers:', error);
+    }
+  };
+
   const handleMakeOffer = (property) => {
-    navigate(`/make-offer/${property.propertyId || property._id}`, { state: { property } });
+    const propertyId = property.propertyId || property._id;
+    const existingOffer = existingOffers[propertyId];
+    
+    if (existingOffer) {
+      toast({
+        title: "Already Offered",
+        description: `You already have a ${existingOffer.status} offer for this property. If the agent accepts an offer for a specific property, other offers for that property will be rejected automatically.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    navigate(`/make-offer/${propertyId}`, { state: { property } });
   };
 
   const getUserInitials = (name) => {
@@ -180,14 +209,24 @@ const Wishlist = () => {
                   </div>
                   
                   <div className="pt-3 space-y-2">
-                    <Button
-                      onClick={() => handleMakeOffer(item)}
-                      className="w-full"
-                      disabled={item.verificationStatus !== 'verified'}
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Make an Offer
-                    </Button>
+                    {existingOffers[item.propertyId || item._id] ? (
+                      <Button 
+                        disabled
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        Already Offered ({existingOffers[item.propertyId || item._id].status})
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleMakeOffer(item)}
+                        className="w-full"
+                        disabled={item.verificationStatus !== 'verified'}
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Make an Offer
+                      </Button>
+                    )}
                     
                     <Button
                       variant="outline"

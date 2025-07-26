@@ -12,6 +12,7 @@ router.use(verifyJWT);
 // User routes
 router.post('/', verifyRole('user'), offerController.makeOffer); // User makes an offer on a property
 router.get('/my-offers', verifyRole('user'), offerController.getMyOffers); // User views offered properties (Property bought page)
+router.delete('/:id', verifyRole('user'), offerController.cancelOffer); // User cancels pending offer
 
 // Agent routes
 router.get('/agent/requested-properties', verifyRole('agent'), offerController.getRequestedOffers); // Offers received by agent

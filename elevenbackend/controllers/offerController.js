@@ -31,6 +31,15 @@ exports.makeOffer = async (req, res) => {
       return res.status(403).json({ error: 'Only users can make offers' });
     }
 
+    // Check if user already has an active offer for this property
+    const existingOffer = await Offer.getActiveOfferByUserAndProperty(req.db, buyerUid, propertyId);
+    if (existingOffer) {
+      return res.status(400).json({ 
+        error: 'You already have an active offer for this property',
+        code: 'DUPLICATE_OFFER'
+      });
+    }
+
     console.log(`💰 Creating offer for ${offeredAmount} by ${buyerName} for property ${propertyTitle}`);
 
     const offer = await Offer.create(req.db, {
@@ -181,6 +190,30 @@ exports.markOfferAsBought = async (req, res) => {
     res.json({ message: 'Payment completed, offer marked as bought', offer });
   } catch (error) {
     console.error('Mark offer paid error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+// User: Cancel pending offer
+exports.cancelOffer = async (req, res) => {
+  try {
+    const offerId = req.params.id;
+    const buyerUid = req.user.uid;
+
+    console.log(`🗑️ Canceling offer ${offerId} for user ${req.user.email}`);
+
+    const success = await Offer.cancelOffer(req.db, offerId, buyerUid);
+    
+    if (!success) {
+      return res.status(404).json({ 
+        error: 'Offer not found or cannot be cancelled' 
+      });
+    }
+
+    console.log('✅ Offer cancelled successfully');
+    res.json({ message: 'Offer cancelled successfully' });
+  } catch (error) {
+    console.error('❌ Cancel offer error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };

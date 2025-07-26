@@ -110,11 +110,21 @@ const MakeOffer = () => {
       navigate('/dashboard/user/property-bought');
     } catch (error) {
       console.error('Error submitting offer:', error);
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to submit offer",
-        variant: "destructive",
-      });
+      
+      // Handle duplicate offer error specifically
+      if (error.response?.data?.code === 'DUPLICATE_OFFER') {
+        toast({
+          title: "Already Offered",
+          description: "You already have an active offer for this property. If the agent accepts an offer for a specific property, other offers for that property will be rejected automatically.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.response?.data?.error || error.response?.data?.message || "Failed to submit offer",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

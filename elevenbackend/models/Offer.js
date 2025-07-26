@@ -57,6 +57,25 @@ const Offer = {
     ]).toArray();
     return result.length > 0 ? result[0].totalSoldAmount : 0;
   },
+
+  // Check if user has active offer for property
+  getActiveOfferByUserAndProperty: async (db, buyerUid, propertyId) => {
+    return db.collection(COLLECTION_NAME).findOne({ 
+      buyerUid, 
+      propertyId, 
+      status: { $in: ['pending', 'accepted'] } 
+    });
+  },
+
+  // Cancel/delete offer by ID (only for pending offers)
+  cancelOffer: async (db, offerId, buyerUid) => {
+    const result = await db.collection(COLLECTION_NAME).deleteOne({ 
+      _id: new ObjectId(offerId),
+      buyerUid,
+      status: 'pending' // Only allow canceling pending offers
+    });
+    return result.deletedCount > 0;
+  },
 };
 
 module.exports = Offer;

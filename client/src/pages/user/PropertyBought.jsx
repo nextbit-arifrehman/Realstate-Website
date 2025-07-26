@@ -40,6 +40,31 @@ const PropertyBought = () => {
     navigate(`/payment/${offer._id}`);
   };
 
+  const handleCancelOffer = async (offerId) => {
+    if (!window.confirm('Are you sure you want to cancel this offer? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await api.delete(`/api/offers/${offerId}`);
+      
+      // Remove cancelled offer from the list
+      setOffers(offers.filter(offer => offer._id !== offerId));
+      
+      toast({
+        title: "Success",
+        description: "Offer cancelled successfully ✅",
+      });
+    } catch (error) {
+      console.error('Error cancelling offer:', error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.error || "Failed to cancel offer",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusBadgeVariant = (status) => {
     switch (status) {
       case 'pending': return 'outline';
@@ -241,10 +266,20 @@ const PropertyBought = () => {
                           )}
                           
                           {offer.status === 'pending' && (
-                            <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
-                              <div className="text-xs text-yellow-800">
-                                Waiting for agent response
+                            <div className="mt-3 space-y-2">
+                              <div className="p-3 bg-yellow-50 rounded-lg">
+                                <div className="text-xs text-yellow-800">
+                                  Waiting for agent response
+                                </div>
                               </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleCancelOffer(offer._id)}
+                                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                Cancel Offer
+                              </Button>
                             </div>
                           )}
                           
