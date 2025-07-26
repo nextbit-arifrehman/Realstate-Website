@@ -1,0 +1,62 @@
+const { ObjectId } = require('mongodb');
+
+const COLLECTION_NAME = 'offers';
+
+const Offer = {
+  create: async (db, offerData) => {
+    const result = await db.collection(COLLECTION_NAME).insertOne(offerData);
+    return db.collection(COLLECTION_NAME).findOne({ _id: result.insertedId });
+  },
+
+  getOfferById: async (db, id) => {
+    return db.collection(COLLECTION_NAME).findOne({ _id: new ObjectId(id) });
+  },
+
+  getOffersByBuyerUid: async (db, buyerUid) => {
+    return db.collection(COLLECTION_NAME).find({ buyerUid }).toArray();
+  },
+
+  getOffersByAgentUid: async (db, agentUid) => {
+    return db.collection(COLLECTION_NAME).find({ agentUid }).toArray();
+  },
+
+  getSoldOffersByAgentUid: async (db, agentUid) => {
+    return db.collection(COLLECTION_NAME).find({ agentUid, status: 'bought' }).toArray();
+  },
+
+  updateOfferStatus: async (db, id, status) => {
+    const result = await db.collection(COLLECTION_NAME).updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { status } }
+    );
+    return result.modifiedCount > 0;
+  },
+
+  updateOffer: async (db, id, updateData) => {
+    const result = await db.collection(COLLECTION_NAME).updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateData }
+    );
+    return result.modifiedCount > 0;
+  },
+
+  deleteOffer: async (db, id) => {
+    const result = await db.collection(COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) });
+    return result.deletedCount > 0;
+  },
+
+  updateManyOffers: async (db, filter, update) => {
+    const result = await db.collection(COLLECTION_NAME).updateMany(filter, update);
+    return result.modifiedCount;
+  },
+
+  getTotalSoldAmountByAgentUid: async (db, agentUid) => {
+    const result = await db.collection(COLLECTION_NAME).aggregate([
+      { $match: { agentUid, status: 'bought' } },
+      { $group: { _id: null, totalSoldAmount: { $sum: '$offeredAmount' } } }
+    ]).toArray();
+    return result.length > 0 ? result[0].totalSoldAmount : 0;
+  },
+};
+
+module.exports = Offer;

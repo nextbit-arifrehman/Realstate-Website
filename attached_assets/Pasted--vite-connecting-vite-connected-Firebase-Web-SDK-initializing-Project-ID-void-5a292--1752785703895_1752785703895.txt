@@ -1,0 +1,23 @@
+[vite] connecting...
+[vite] connected.
+Firebase Web SDK initializing...
+Project ID: void-5a292
+✅ Firebase Web SDK initialized successfully
+User signed out
+Warning: Each child in a list should have a unique &quot;key&quot; prop.
+
+Check the render method of `Home`. See https://reactjs.org/link/warning-keys for more information.
+    at PropertyCard (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/src/components/PropertyCard.jsx:25:40)
+    at Home (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/src/pages/Home.jsx:30:20)
+    at RenderedRoute (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=1d2cafbb:5455:26)
+    at Routes (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=1d2cafbb:6188:3)
+    at main
+    at div
+    at AppRouter
+    at Provider (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=1d2cafbb:38:15)
+    at TooltipProvider (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=1d2cafbb:61:5)
+    at AuthProvider (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/src/contexts/AuthContext.jsx?t=1752785589810:35:32)
+    at Router (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=1d2cafbb:6131:13)
+    at BrowserRouter (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=1d2cafbb:9149:3)
+    at QueryClientProvider (https://9eaee49e-9024-498c-b6f7-38e7541c800e-00-1liz3s08ezysj.riker.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=1d2cafbb:2805:3)
+    at App
