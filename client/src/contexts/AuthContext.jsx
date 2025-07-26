@@ -76,7 +76,14 @@ export const AuthProvider = ({ children }) => {
             clearTimeout(timeoutId);
             
             if (loginResponse.status === 200) {
-              const { user: dbUser } = loginResponse.data;
+              const { user: dbUser, token: backendToken } = loginResponse.data;
+              
+              // Store the backend JWT token
+              if (backendToken) {
+                localStorage.setItem('backendToken', backendToken);
+                console.log("🔑 Backend JWT token stored in localStorage");
+              }
+              
               const mergedUser = { 
                 uid: dbUser.uid || userWithDefaults.uid,
                 email: dbUser.email || userWithDefaults.email,
@@ -114,6 +121,7 @@ export const AuthProvider = ({ children }) => {
         // User is signed out
         setUser(null);
         localStorage.removeItem('token');
+        localStorage.removeItem('backendToken');
         localStorage.removeItem('user');
         console.log("User signed out");
       }
@@ -139,8 +147,14 @@ export const AuthProvider = ({ children }) => {
       });
       
       if (loginResponse.status === 200) {
-        const { user: dbUser } = loginResponse.data;
+        const { user: dbUser, token: backendToken } = loginResponse.data;
         console.log("Backend response:", dbUser);
+        
+        // Store the backend JWT token for refresh
+        if (backendToken) {
+          localStorage.setItem('backendToken', backendToken);
+          console.log("🔑 Backend JWT token refreshed and stored");
+        }
         
         const mergedUser = { 
           uid: dbUser.uid || user.uid,

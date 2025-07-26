@@ -115,9 +115,24 @@ exports.loginUser = async (req, res) => {
     console.log(`👤 Backend: User processed: ${email}`);
     console.log(`🎯 Backend: Current user role: ${user.role}`);
 
-    console.log("💾 Backend: Sending user data to frontend...");
+    // Generate Backend JWT Token for API authentication
+    console.log("🔑 Backend: Generating JWT token for API access...");
+    const jwt = require('jsonwebtoken');
+    const backendToken = jwt.sign(
+      { 
+        uid: user.uid,
+        email: user.email,
+        role: user.role 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    console.log("✅ Backend: JWT token generated successfully");
+
+    console.log("💾 Backend: Sending user data and tokens to frontend...");
     res.status(200).json({
       message: 'Login successful',
+      token: backendToken,
       user: {
         uid: user.uid,
         backendId: user.backendId,
